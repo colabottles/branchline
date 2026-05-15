@@ -37,46 +37,70 @@ const filter = ref<'all' | 'open' | 'approved'>('all')
 async function load() {
   pending.value = true
 
-  const { data: reviewData } = await client
-    .from('reviews')
+  if (!user.value?.id) {
+    pending.value = false
+    return
+  }
+
+  const { data: reviewData, error: reviewError } = await client
+    .from('review_participants')
     .select(`
-      id, pr_number, title, branch_head, branch_base,
-      repo_owner, repo_name, author_name, author_avatar_url,
-      decision, is_draft, additions, deletions, changed_files, updated_at,
-      review_participants ( user_id, display_name, avatar_url ),
-      threads ( id, status )
+      review_id,
+      reviews (
+        id, pr_number, title, branch_head, branch_base,
+        repo_owner, repo_name, author_name, author_avatar_url,
+        decision, is_draft, additions, deletions, changed_files, updated_at
+      )
     `)
-    .order('updated_at', { ascending: false })
+    .eq('user_id', user.value.id)
+
+  if (reviewError) console.error(reviewError)
 
   if (reviewData) {
-    reviews.value = reviewData.map((r: Record<string, unknown>) => {
-      const threads = (r.threads as Array<{ status: string }>) ?? []
-      const participants = (r.review_participants as Array<{ user_id: string, display_name: string, avatar_url: string | null }>) ?? []
-      return {
-        id: r.id as string,
-        prNumber: r.pr_number as number,
-        title: r.title as string,
-        branchHead: r.branch_head as string,
-        branchBase: r.branch_base as string,
-        repoOwner: r.repo_owner as string,
-        repoName: r.repo_name as string,
-        authorName: r.author_name as string,
-        authorAvatarUrl: r.author_avatar_url as string | null,
-        decision: r.decision as DashboardReview['decision'],
-        isDraft: r.is_draft as boolean,
-        additions: r.additions as number,
-        deletions: r.deletions as number,
-        changedFiles: r.changed_files as number,
-        updatedAt: r.updated_at as string,
-        commentCount: threads.length,
-        openThreadCount: threads.filter(t => t.status === 'open').length,
-        participants: participants.map(p => ({
-          userId: p.user_id,
-          displayName: p.display_name,
-          avatarUrl: p.avatar_url,
-        })),
-      }
-    })
+    const reviewIds = reviewData.map((r: Record<string, unknown>) => r.review_id as string)
+
+    const { data: participantData } = await client
+      .from('review_participants')
+      .select('review_id, user_id, display_name, avatar_url')
+      .in('review_id', reviewIds)
+
+    const { data: threadData } = await client
+      .from('threads')
+      .select('review_id, id, status')
+      .in('review_id', reviewIds)
+
+    reviews.value = reviewData
+      .filter((r: Record<string, unknown>) => r.reviews)
+      .map((r: Record<string, unknown>) => {
+        const rv = r.reviews as Record<string, unknown>
+        const rid = rv.id as string
+        const threads = (threadData ?? []).filter((t: Record<string, unknown>) => t.review_id === rid)
+        const participants = (participantData ?? []).filter((p: Record<string, unknown>) => p.review_id === rid)
+        return {
+          id: rid,
+          prNumber: rv.pr_number as number,
+          title: rv.title as string,
+          branchHead: rv.branch_head as string,
+          branchBase: rv.branch_base as string,
+          repoOwner: rv.repo_owner as string,
+          repoName: rv.repo_name as string,
+          authorName: rv.author_name as string,
+          authorAvatarUrl: rv.author_avatar_url as string | null,
+          decision: rv.decision as DashboardReview['decision'],
+          isDraft: rv.is_draft as boolean,
+          additions: rv.additions as number,
+          deletions: rv.deletions as number,
+          changedFiles: rv.changed_files as number,
+          updatedAt: rv.updated_at as string,
+          commentCount: threads.length,
+          openThreadCount: threads.filter((t: Record<string, unknown>) => t.status === 'open').length,
+          participants: participants.map((p: Record<string, unknown>) => ({
+            userId: p.user_id as string,
+            displayName: p.display_name as string,
+            avatarUrl: p.avatar_url as string | null,
+          })),
+        }
+      })
   }
 
   pending.value = false
@@ -108,7 +132,7 @@ class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           <circle cx="18" cy="6" r="3" />
           <path d="M6 9v6a3 3 0 003 3h3M18 9v3" />
         </svg>
-        <span class="brand-name">BranchLine</span>
+        <span class="brand-name">collab-review</span>
       </div>
 
       <div class="dash-header-right">
