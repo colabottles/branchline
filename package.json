@@ -1,0 +1,40 @@
+{
+  "name": "branchline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Realtime collaborative Markdown PR review tool, accessibility-first",
+  "author": "Todd Libby <toddl@toddl.dev> (https://toddl.dev)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "nuxt dev --port 3030",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "db:migrate": "node server/database/migrate.js"
+  },
+  "dependencies": {
+    "@nuxtjs/supabase": "^1.4.6",
+    "dompurify": "^3.1.6",
+    "marked": "^12.0.0",
+    "nuxt": "^4.0.0",
+    "shiki": "^1.22.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.13.0",
+    "@nuxt/eslint": "^0.7.0",
+    "@types/dompurify": "^3.0.5",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.7.0"
+  }
+}
