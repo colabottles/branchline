@@ -112,8 +112,3 @@ samp {
   background: var(--border-mid);
   border-radius: 3px;
 }
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-mid) transparent;
-}

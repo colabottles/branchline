@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     supabaseServiceKey: '',
     public: {
       supabaseUrl: '',
-      supabaseAnonKey: '',
+      supabaseKey: '',
     },
   },
 
