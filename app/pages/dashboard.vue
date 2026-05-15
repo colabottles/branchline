@@ -108,7 +108,7 @@ class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           <circle cx="18" cy="6" r="3" />
           <path d="M6 9v6a3 3 0 003 3h3M18 9v3" />
         </svg>
-        <span class="brand-name">collab-review</span>
+        <span class="brand-name">BranchLine</span>
       </div>
 
       <div class="dash-header-right">
