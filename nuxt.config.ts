@@ -30,11 +30,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
-      title: 'collab-review',
+      title: 'branchline',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Realtime collaborative PR review — accessibility-first' },
+        { name: 'description', content: 'Realtime collaborative PR review, accessibility-first tool' },
         { name: 'color-scheme', content: 'dark' },
       ],
       link: [

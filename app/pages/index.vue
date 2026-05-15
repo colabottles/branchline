@@ -15,6 +15,25 @@ const mode = ref<'login' | 'signup'>('login')
 const error = ref<string | null>(null)
 const pending = ref(false)
 
+async function handleDemo() {
+  error.value = null
+  pending.value = true
+
+  try {
+    const { error: err } = await client.auth.signInWithPassword({
+      email: 'demo@collab-review.dev',
+      password: 'collab-review-demo',
+    })
+    if (err) throw err
+  }
+  catch (err) {
+    error.value = err instanceof Error ? err.message : 'Something went wrong'
+  }
+  finally {
+    pending.value = false
+  }
+}
+
 async function handleSubmit() {
   error.value = null
   pending.value = true
@@ -116,6 +135,20 @@ width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             Markdown previews in the sidebar, realtime
           </li>
         </ul>
+
+        <button
+          class="demo-btn"
+          type="button"
+          :disabled="pending"
+          :aria-busy="pending"
+          @click="handleDemo">
+          <svg
+width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" aria-hidden="true">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+          {{ pending ? 'Signing in…' : 'Try the demo' }}
+        </button>
       </section>
 
       <section class="auth-card" aria-labelledby="auth-heading">
@@ -420,7 +453,6 @@ width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
   border-radius: var(--radius-sm);
-  box-sizing: border-box;
   color: var(--text-primary);
   font-family: var(--font-ui);
   font-size: 0.9375rem;
@@ -438,9 +470,13 @@ width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
   color: var(--text-muted);
 }
 
+.field-input,
+.auth-submit {
+  box-sizing: border-box;
+}
+
 .auth-submit {
   background: var(--amber);
-  box-sizing: border-box;
   color: var(--bg-base);
   font-family: var(--font-ui);
   font-size: 0.9375rem;
@@ -458,6 +494,33 @@ width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
 }
 
 .auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.demo-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--amber);
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  padding: 0.625rem 1.25rem;
+  border: 2px solid var(--amber);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  width: fit-content;
+}
+
+.demo-btn:hover:not(:disabled) {
+  background: var(--amber);
+  color: var(--bg-base);
+}
+
+.demo-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
